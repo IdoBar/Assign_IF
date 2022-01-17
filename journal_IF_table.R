@@ -2,6 +2,10 @@ remotes::install_github(c("ropensci/tabulizerjars", "ropensci/tabulizer"), INSTA
 
 pacman::p_load(tidyverse, janitor, tabulizer)
 
+# See details in https://github.com/peumartino/ZotIF
+# Abbreviation tables from https://su.figshare.com/articles/dataset/Journal_abbreviations_from_Web_of_Science/3207787
+# IF CJR data downloaded from https://phdtalks.org/2021/05/download-journal-impact-factor-list-2021.html
+
 
 # library(rvest) # to parse the abbreviation table from the web
 # content <- read_html("https://woodward.library.ubc.ca/research-help/journal-abbreviations/")
@@ -30,6 +34,7 @@ pacman::p_load(tidyverse, janitor, tabulizer)
 complete_IF_table <- read_csv("data/complete_IF_table.csv") %>% 
   filter(!is.na(journal_impact_factor))
 
+# manually add IF data for journals not found in the database from https://jcr.clarivate.com/jcr/browse-journals
 my_IF_table <- tribble(~full_title, ~journal_IF,
                        "Microbial Genomics", 5.237, 
                        "Genes", 4.096,
