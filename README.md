@@ -1,6 +1,6 @@
 # Academic Publishing and Open Access
 
-In the academic world you are being measured by a very cruel metric -- your publication and citation index, which is derived from the number of scientific articles (and books) published, their impact factor (IF) and the number of times they were cited (often measured as ). These measures are closely looked at and compared when selecting candidates for research and lecturing positions and in many cases can determine a career trajectory.
+In the academic world you are being measured by a very cruel metric -- your publication and citation index, which is derived from the number of scientific articles (and books) published, their impact factor (IF) and the number of times they were cited (often measured as [h-index](https://scholar.google.com/intl/en/scholar/metrics.html#metrics)). These measures are closely looked at and compared when selecting candidates for research and lecturing positions and in many cases can determine a career trajectory.
 
 A major emphasis is given in recent years to democratise scientific findings, so academics are encouraged to publish their findings in Open Access (OA) journals, bypassing the so called "paywall" and making them widely available to the public. However, publishing is such journals is often very expensive and can reach thousands of dollars, thus discriminating against students, early career researchers and scientists from low-income countries who are unable to afford it. 
 
