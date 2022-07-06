@@ -1,7 +1,7 @@
 ---
 title: "Open Access Publishing under the CAUL Read & Publish Agreement in Australia & NZ"
 author: "Ido Bar"
-date: "26/04/2022"
+date: "06/07/2022"
 output: 
   bookdown::html_document2:
     df_print: paged
@@ -32,7 +32,7 @@ journal_abvs <- c("CA", "ICES", "BMC", "ACTA", "AAPG", "AAPS", "AATCC", "ACM", "
                   "CUAJ", "CPT","CTS", "DARU", "ENT", "ESAIM", "EURE", "GAIA", "GLQ", "HAHR", "HAU", "ICHNOS", "ICON", "IEEE", "IRAL", "ISJ", "ITEA",
                   "JAAPA", "JACC", "JAIDS", "JANAC", "JARO", "JARQ", "JASSS", "JAVMA", "JAVNOST", "JCMS", "JCPSP", "JCR", "JNCI", "JNP", "JOGNN", "JPAD", 
                   "JPC","JSLS","KGK","LIBRI", "LUTS", "LWT", "MAPAN", "MCN", "MMWR", "NAUNYN", "NJAS", "NODEA", "NWIG", "ORL", "OTJR", "PFG", "QJM", "PS",
-                  "QME", "RAE", "RAIRO", "RBGN", "REAL", "REDIA", "REVSTAT", "RIDE", "RILCE", "RLA", "ROFO", "RSF", "SADHANA", "SEN",  "SHILAP", "SIAM",
+                  "QME", "RAE", "RAIRO", "RBGN", "REAL", "REDIA", "REVSTAT", "RIDE", "RILCE", "RLA", "ROFO", "RSF", "SADHANA", "SEN",  "SHILAP", "SIAM", "SJR",
                   "TOPIA", "TRAC" , "TRAMES", "UHOD", "VIAL", "ZAMM", "ZDM"
                   )
 IF_table <- read_excel("data/JCR2021.xlsx", sheet = "Table 1", skip = 2) %>% 
@@ -56,14 +56,29 @@ my_IF_table <- tribble(~full_title, ~journal_IF, # ~Publisher,
 free_journals <- read_csv("data/CAUL_agreement_all_publishers.csv", col_types = "cccccc") %>% 
   clean_names("mixed") %>% 
   mutate(full_title=gsub("Thalassas:.+", "Thalassas", Journal),
-         full_title=to_title_case(gsub("&", "and", full_title, fixed = TRUE), abbreviations = journal_abvs, parsing_option=3))
+         full_title=to_title_case(gsub("&", "and", full_title, fixed = TRUE), 
+                                  abbreviations = journal_abvs, parsing_option=3))
+
+SJR_table <- read_delim("data/scimagojr 2021.csv", delim = ";") %>% 
+   clean_names(case="mixed", abbreviations = c("SJR", "ISSN", "ID")) %>% 
+  mutate(full_title=gsub("Thalassas:.+", "Thalassas", Title),
+         full_title=to_title_case(gsub("&", "and", full_title, fixed = TRUE), 
+                                  abbreviations = journal_abvs, parsing_option=3)) %>% 
+  select(full_title, SJR, H_index, Categories, Publisher)
 
 complete_IF_table <- IF_table %>% 
   select(full_title, journal_IF) %>%
-  bind_rows(my_IF_table) %>% full_join(free_journals) %>% 
-  mutate(Included_in_R_P_Agreement=replace_na(Included_in_R_P_Agreement, "No"),
+  bind_rows(my_IF_table) %>%
+  full_join(SJR_table) %>% 
+  full_join(free_journals %>% select(-Journal),by = "full_title") %>% 
+  distinct() %>% 
+  mutate(Publisher=ifelse(!is.na(Publisher.x) & !is.na(Publisher.y), glue::glue("{Publisher.x}/{Publisher.y}"), 
+                          ifelse(!is.na(Publisher.x) & is.na(Publisher.y),Publisher.x, Publisher.y)),
+    Included_in_R_P_Agreement=replace_na(Included_in_R_P_Agreement, "No"),
          Explanation_if_not_included=if_else(Included_in_R_P_Agreement=="No" & is.na(Publisher), 
-                                             "Publisher not signed an agreement with CAUL", Explanation_if_not_included)) 
+                                             "Publisher not signed an agreement with CAUL",
+                                             Explanation_if_not_included)) %>% 
+  select(!contains("Publisher.")) 
 ```
 
 ## TL;DR 
@@ -71,11 +86,16 @@ complete_IF_table <- IF_table %>%
 Use the following table to search for indexed scientific journals, check for their impact factor (IF) and see if they are open access (OA) and covered within the "Read and Publish" agreement for Australian and New Zealand academics.
 
 ```{r journal-table, echo=FALSE}
-complete_IF_table %>% select(Journal=full_title, impact_factor_2021=journal_IF, Issn, Included_in_CAUL_Agreement=Included_in_R_P_Agreement,
-                             Publisher, Doi) %>% 
-  clean_names("title", abbreviations = c("ISSN", "DOI", "IF", "CAUL")) %>% 
+complete_IF_table %>% select(Journal=full_title, impact_factor_2021=journal_IF, SJR, H_index, 
+                             Categories, Included_in_CAUL_Agreement=Included_in_R_P_Agreement,
+                             Publisher) %>% 
+  clean_names("title", abbreviations = c("ISSN", "DOI", "IF", "CAUL", "SJR")) %>% 
   reactable(columns = list(
-    Journal = colDef(width = 275)   # 50% width, 200px minimum
+    Journal = colDef(width = 275),   # 50% width, 200px minimum
+    Categories = colDef(width = 275),
+    SJR = colDef(width = 70),
+    "H Index" = colDef(width = 70),
+    Publisher = colDef(width = 120)
   ),
   filterable = TRUE, searchable = TRUE, resizable = TRUE, bordered = TRUE, striped = TRUE, highlight = TRUE)
 
@@ -85,7 +105,7 @@ Now for the full story:
 
 # Academic Publishing and Open Access
 
-In the academic world you are being measured by a very cruel metric -- your publication and citation index, which is derived from the number of scientific articles (and books) published, their impact factor (IF) and the number of times they were cited (often measured as [h-index](https://scholar.google.com/intl/en/scholar/metrics.html#metrics){target="_blank"}). These measures are closely looked at and compared when selecting candidates for research and lecturing positions and in many cases can determine a career trajectory.
+In the academic world you are being measured by a very cruel metric -- your publication and citation index, which is derived from the number of scientific articles (and books) published, their impact factor (IF) and the number of times they were cited (often measured as [H-index](https://scholar.google.com/intl/en/scholar/metrics.html#metrics){target="_blank"}). These measures are closely looked at and compared when selecting candidates for research and lecturing positions and in many cases can determine a career trajectory.
 
 A major emphasis is given in recent years to democratise scientific findings, so academics are encouraged to publish their findings in Open Access (OA) journals, bypassing the so called "paywall" and making them widely available to the public. However, publishing is such journals is often very expensive and can reach thousands of dollars, thus discriminating against students, early career researchers and scientists from low-income countries who are unable to afford it.  
 
@@ -109,6 +129,8 @@ A couple of options are the official Web of Science [Journal Citation Reports (J
 
 Other websites took a step forward and compiled a list of these journals and their IF from the official JCR website and made them available for download in Excel format (in [impactfactorforjournal.com](https://impactfactorforjournal.com/jcr-2021/){target="_blank"}) or as a PDF document ([phdtalk.org](https://phdtalks.org/2021/05/download-scie-journal-list-latest.html){target="_blank"}), which makes searching through the tables much easier. Furthermore, phdtalk.org have developed an online tool ([journalfinder.phdtalks.org](https://journalfinder.phdtalks.org/){target="_blank"}) for searching indexed and OA journals by keywords and/or category, but still, this useful tool does not provide IF for the journals it finds.
 
+Another useful source for journal ranking is the [Scimago Journal Ranking](https://www.scimagojr.com/journalrank.php?page=1&total_size=27339){target="_blank"} (SJR), which provides a searchable (and downloadable!) table of journals, with their SJR ranking, H-index and the journal's ranking in the discipline/category (Q1/2/3/4).
+
 ## Searchable Open Access Journal Impact Factor Table
 
 This is where my R and Rmarkdown skills come handy!  
@@ -122,7 +144,7 @@ I used a handful of very useful packages for this work:
 ```{r packages, eval=FALSE}
 # load required packages (using pacman package)
 library(pacman)
-p_load(tidyverse, readxl, snakecase, janitor)
+p_load(tidyverse, readxl, snakecase, janitor, glue)
 ```
 
 The following code snippets describe how I compiled a searchable IF table for OA journals covered by the CAUL agreement by combining the available tables from CAUL (OA journals) and JCR (IF table). The pre-compiled IF table was downloaded from [impactfactorforjournal.com](https://impactfactorforjournal.com/jcr-2021/){target="_blank"} (scroll to the very bottom of the page or use this direct download link [JCR2021.xlsx](https://impactfactorforjournal.com/wp-content/uploads/2021/07/JCR2021.xlsx){target="_blank"}).   
@@ -140,13 +162,6 @@ journal_abvs <- c("CA", "ICES", "BMC", "ACTA", "AAPG", "AAPS", "AATCC", "ACM", "
                   "QME", "RAE", "RAIRO", "RBGN", "REAL", "REDIA", "REVSTAT", "RIDE", "RILCE", "RLA", "ROFO", "RSF", "SADHANA", "SEN",  "SHILAP", "SIAM",
                   "TOPIA", "TRAC" , "TRAMES", "UHOD", "VIAL", "ZAMM", "ZDM"
                   )
-IF_table <- read_excel("data/JCR2021.xlsx", sheet = "Table 1", skip = 2) %>% 
-  clean_names() %>% 
-    # filter(journal_impact_factor!="Not Available") %>%
-    remove_empty(which = "rows") %>%
-    distinct() %>%
-    mutate(journal_IF=as.numeric(journal_impact_factor),
-           full_title=to_title_case(gsub("&", "and", full_journal_title, fixed = TRUE), abbreviations = journal_abvs, parsing_option=3))
 # manually add IF data for journals not found in the database from https://jcr.clarivate.com/jcr/browse-journals
 my_IF_table <- tribble(~full_title, ~journal_IF, # ~Publisher,
                        "Microbial Genomics", 5.237, #"Microbiology Society"
@@ -157,6 +172,28 @@ my_IF_table <- tribble(~full_title, ~journal_IF, # ~Publisher,
                        "Frontiers in Plant Science", 5.754,
                        "Frontiers in Genetics", 4.599
                        )
+
+IF_table <- read_excel("data/JCR2021.xlsx", sheet = "Table 1", skip = 2) %>% 
+  clean_names() %>% 
+    # filter(journal_impact_factor!="Not Available") %>%
+    remove_empty(which = "rows") %>%
+    distinct() %>%
+    mutate(journal_IF=as.numeric(journal_impact_factor),
+           full_title=to_title_case(gsub("&", "and", full_journal_title, fixed = TRUE), 
+                                    abbreviations = journal_abvs, parsing_option=3)) %>% 
+  bind_rows(my_IF_table)
+
+```
+
+The SJR table was downloaded from the [Scimago Journal Ranking](https://www.scimagojr.com/journalrank.php?page=1&total_size=27339){target="_blank"} website, processed in a similar way to the JCR table and the 2 tables were combined based on the journal title.
+
+```{r sjr-table, eval=FALSE}
+SJR_table <- read_delim("data/scimagojr 2021.csv", delim = ";") %>% 
+   clean_names(case="mixed", abbreviations = c("SJR", "ISSN", "ID")) %>% 
+  mutate(full_title=gsub("Thalassas:.+", "Thalassas", Title),
+         full_title=to_title_case(gsub("&", "and", full_title, fixed = TRUE), 
+                                  abbreviations = journal_abvs, parsing_option=3)) %>% 
+  select(full_title, SJR, H_index, Categories, Publisher)
 ```
 
 The table of OA journals covered under the CAUL agreement was downloaded from [Airtable](https://airtable.com/shrv3FyFMLdn8r4tb){target="_blank"} and saved as `csv` file (see \@ref(fig:caul-airtable)) 
@@ -171,28 +208,40 @@ The table was imported to R and processed in a similar way to the IF data, to tr
 free_journals <- read_csv("data/CAUL_agreement_all_publishers.csv", col_types = "cccccc") %>% 
   clean_names("mixed") %>% 
   mutate(full_title=gsub("Thalassas:.+", "Thalassas", Journal),
-         full_title=to_title_case(gsub("&", "and", full_title, fixed = TRUE), abbreviations = journal_abvs, parsing_option=3))
+         full_title=to_title_case(gsub("&", "and", full_title, fixed = TRUE), 
+                                  abbreviations = journal_abvs, parsing_option=3))
 ```
 
-Then, both tables were joined.
+Then, all 3 tables were joined.
 
 ```{r join-tables, eval=FALSE}
 complete_IF_table <- IF_table %>% 
   select(full_title, journal_IF) %>%
-  bind_rows(my_IF_table) %>% full_join(free_journals) %>% 
-  mutate(Included_in_R_P_Agreement=replace_na(Included_in_R_P_Agreement, "No"),
+  full_join(SJR_table) %>% 
+  full_join(free_journals %>% select(-Journal),by = "full_title") %>% 
+  distinct() %>% 
+  mutate(Publisher=ifelse(!is.na(Publisher.x) & !is.na(Publisher.y), glue("{Publisher.x}/{Publisher.y}"), 
+                          ifelse(!is.na(Publisher.x) & is.na(Publisher.y),Publisher.x, Publisher.y)),
+    Included_in_R_P_Agreement=replace_na(Included_in_R_P_Agreement, "No"),
          Explanation_if_not_included=if_else(Included_in_R_P_Agreement=="No" & is.na(Publisher), 
-                                             "Publisher not signed an agreement with CAUL", Explanation_if_not_included)) 
+                                             "Publisher not signed an agreement with CAUL",
+                                             Explanation_if_not_included)) %>% 
+  select(!contains("Publisher."))  
 ```
 
 The resulting table can be presented in Shiny or Rmarkdown with the [DT](https://rstudio.github.io/DT/){target="_blank"} or [reactable](https://glin.github.io/reactable/index.html){target="_blank"} packages.
 
 ```{r final-table}
-complete_IF_table %>% select(Journal=full_title, impact_factor=journal_IF, Issn, Included_in_CAUL_Agreement=Included_in_R_P_Agreement,
+complete_IF_table %>% select(Journal=full_title, impact_factor_2021=journal_IF, SJR, H_index, 
+                             Categories, Included_in_CAUL_Agreement=Included_in_R_P_Agreement,
                              Publisher, Doi) %>% 
-  clean_names("title", abbreviations = c("ISSN", "DOI", "IF", "CAUL")) %>% 
+  clean_names("title", abbreviations = c("ISSN", "DOI", "IF", "CAUL", "SJR")) %>% 
   reactable(columns = list(
-    Journal = colDef(width = 275)   # 50% width, 200px minimum
+    Journal = colDef(width = 275),   # 50% width, 200px minimum
+    Categories = colDef(width = 275),
+    SJR = colDef(width = 70),
+    "H Index" = colDef(width = 70),
+    Publisher = colDef(width = 120)
   ),
   filterable = TRUE, searchable = TRUE, resizable = TRUE, bordered = TRUE, striped = TRUE, highlight = TRUE)
 ```

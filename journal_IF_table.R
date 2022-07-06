@@ -50,7 +50,8 @@ complete_IF_table <- readxl::read_excel("data/JCR2021.xlsx", sheet = "Table_clea
     # filter(journal_impact_factor!="Not Available") %>%
     remove_empty(which = "rows") %>%
     distinct() %>%
-    mutate(full_title=to_title_case(gsub("&", "and", full_journal_title, fixed = TRUE), abbreviations = journal_abvs, parsing_option=3)) %>% 
+    mutate(full_title=to_title_case(gsub("&", "and", full_journal_title, fixed = TRUE), 
+                                    abbreviations = journal_abvs, parsing_option=3)) %>% 
   write_csv("data/JCR2021_IF_table.csv")
 
 complete_IF_table <- read_csv("data/complete_IF_table.csv") %>%
