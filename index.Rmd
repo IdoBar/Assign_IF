@@ -20,8 +20,9 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 devtools::source_gist("7f63547158ecdbacf31b54a58af0d1cc", filename = "util.R")
-remotes::install_github(c("glin/reactable", "hadley/emo", "gadenbuie/tweetrmd"), 
-                        INSTALL_opts = "--no-multiarch")
+pak::pkg_install(c("glin/reactable", "hadley/emo", "gadenbuie/tweetrmd"))
+# remotes::install_github(c("glin/reactable", "hadley/emo", "gadenbuie/tweetrmd"), 
+#                         INSTALL_opts = "--no-multiarch")
 
 pacman::p_load(tidyverse, readxl, snakecase, janitor, reactable)
 
