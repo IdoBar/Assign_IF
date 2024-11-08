@@ -32,7 +32,7 @@ pacman::p_load(char = basename(packs))
 journal_abvs <- c( "ICES", "BMC","BMJ", "ACTA", "AAPG", "AAPS", "AATCC", "ACM", "AAS", "ACI", "AEU", "AERA", "AI", "AIAA", "AIBR", "AIDS", "AIMS", "ASTIN",
                   "AJAR", "AJIDD", "AJIL", "AKCE", "ALEA", "AMB", "AMA", "ALTEX", "ATW", "PDE", "ANZ", "AoB", "AORN", "APL", "APMIS", "ARDEA", "ARS", "ASAIO",
                   "ASCE", "ASME", "ASHRAE", "AStA", "ATLA", "AUK", "BJS", "BJU", "BMB", "BMGN", "BMJ", "BRQ", "BSGF", "CBE", "COMPEL", "COPD", "CMC",
-                  "CUAJ", "CPT","CTS", "DARU", "ENT","EPE", "ESAIM", "EURE", "GAIA", "GLQ", "HAHR", "HAU","ICGA", "ICHNOS", "ICON", "IEEE","IEICE", "IRAL","ISI", "ISJ","ITE", "ITEA",
+                  "CUAJ", "CPT","CTS", "DARU","EFSA", "ENT","EPE", "ESAIM", "EURE", "GAIA", "GLQ", "HAHR", "HAU","ICGA", "ICHNOS", "ICON", "IEEE","IEICE", "IRAL","ISI", "ISJ","ITE", "ITEA",
                   "JAAPA", "JACC", "JAIDS", "JANAC",'JAMA', "JARO", "JARQ", "JASSS", "JAVMA", "JAVNOST", "JCMS", "JCPSP", "JCR", "JNCI", "JNP", "JOGNN", "JPAD", 
                   "JPC","JSLS","KGK","LIBRI","LHB", "LUTS", "LWT", "MAPAN", "MCN", "MMWR", "NAUNYN", "NJAS", "NODEA", "NWIG", "ORL", "OTJR", "PFG", "QJM", "PS",
                   "QME", "RAE", "RAIRO", "RBGN", "REAL", "REDIA", "REVSTAT", "RIDE", "RILCE", "RLA", "ROFO", "RSF", "SADHANA", "SEN",  "SHILAP", "SIAM", "SJR", "TAPPI",
@@ -86,13 +86,13 @@ JCR_IF_table <- read_csv("data/JCR2023.csv", col_names = c("description")) %>%
 
 # manually add IF data for journals not found in the database from https://jcr.clarivate.com/jcr/browse-journals
 my_IF_table <- tribble(~full_title, ~journal_IF, # ~Publisher,
-                       "Microbial Genomics", 3.8, #"Microbiology Society"
+                       # "Microbial Genomics", 3.8, #"Microbiology Society"
                        "Genes", 2.8, 
-                       "Scientific Reports", 4,
+                       # "Scientific Reports", 4,
                        "SpringerPlus", 1.130,
-                       "Frontiers in Chemistry", 3.8,
-                       "Frontiers in Plant Science", 4.1,
-                       "Frontiers in Genetics", 2.8
+                       # "Frontiers in Chemistry", 3.8,
+                       # "Frontiers in Plant Science", 4.1,
+                       # "Frontiers in Genetics", 2.8
                        )
 
 my_IF_table %>% left_join(JCR_IF_table)
@@ -105,7 +105,8 @@ free_journals <- read_csv("data/CAUL_agreement_all_publishers_2024.csv", col_typ
 SJR_table <- read_delim("data/scimagojr 2023.csv", delim = ";") %>% 
    clean_names(case="mixed", abbreviations = c("SJR", "ISSN", "ID")) %>% 
   mutate(full_title=gsub("Thalassas:.+", "Thalassas", Title),
-         full_title=map_chr(full_title, .f = sanitize_title)) %>% 
+         full_title=map_chr(full_title, .f = sanitize_title),
+         SJR=as.numeric(sub(",", ".", SJR))) %>% 
   select(Title, full_title, SJR, H_index, Categories, Publisher)
 # Check title conversion
 # map_chr(SJR_table$Title[1:10], .f = ~sanitize_title(.x, change_allcaps_only = FALSE))
@@ -166,8 +167,8 @@ A very welcomed change is coming from The Council of Australian University Libra
 <!-- >The CAUL Consortium works continuously to negotiate Read & Publish (R&P) agreements, enabling libraries to support students, academics and researchers, with useful scholarly content, and providing authors the opportunity to publish open access immediately on acceptance, and free of any transactional Article Processing Charges (APCs). (<https://caul.libguides.com/read-and-publish>) -->
 
 ```{r caul-tweet, echo=FALSE}
-tweetrmd::tweet_embed("https://twitter.com/CAULalert/status/1452847591125917704", 
-                        hide_media=FALSE)
+# tweetrmd::tweet_embed("https://twitter.com/CAULalert/status/1452847591125917704", 
+#                         hide_media=FALSE)
 ```
 
 The agreement currently covers more than 5,300 entries (available as an [online table](https://airtable.com/shrv3FyFMLdn8r4tb){target="_blank"}), however, it is extremely difficult searching for a relevant journal and more than that, finding its impact factor, which as said, is a major consideration when choosing a journal to publish your hard-earned precious findings.
@@ -213,7 +214,7 @@ The data table was read from the spreadsheet and cleaned with various functions 
 journal_abvs <- c( "ICES", "BMC","BMJ", "ACTA", "AAPG", "AAPS", "AATCC", "ACM", "AAS", "ACI", "AEU", "AERA", "AI", "AIAA", "AIBR", "AIDS", "AIMS", "ASTIN",
                   "AJAR", "AJIDD", "AJIL", "AKCE", "ALEA", "AMB", "AMA", "ALTEX", "ATW", "PDE", "ANZ", "AoB", "AORN", "APL", "APMIS", "ARDEA", "ARS", "ASAIO",
                   "ASCE", "ASME", "ASHRAE", "AStA", "ATLA", "AUK", "BJS", "BJU", "BMB", "BMGN", "BMJ", "BRQ", "BSGF", "CBE", "COMPEL", "COPD", "CMC",
-                  "CUAJ", "CPT","CTS", "DARU", "ENT","EPE", "ESAIM", "EURE", "GAIA", "GLQ", "HAHR", "HAU","ICGA", "ICHNOS", "ICON", "IEEE","IEICE", "IRAL","ISI", "ISJ","ITE", "ITEA",
+                  "CUAJ", "CPT","CTS", "DARU","EFSA", "ENT","EPE", "ESAIM", "EURE", "GAIA", "GLQ", "HAHR", "HAU","ICGA", "ICHNOS", "ICON", "IEEE","IEICE", "IRAL","ISI", "ISJ","ITE", "ITEA",
                   "JAAPA", "JACC", "JAIDS", "JANAC",'JAMA', "JARO", "JARQ", "JASSS", "JAVMA", "JAVNOST", "JCMS", "JCPSP", "JCR", "JNCI", "JNP", "JOGNN", "JPAD", 
                   "JPC","JSLS","KGK","LIBRI","LHB", "LUTS", "LWT", "MAPAN", "MCN", "MMWR", "NAUNYN", "NJAS", "NODEA", "NWIG", "ORL", "OTJR", "PFG", "QJM", "PS",
                   "QME", "RAE", "RAIRO", "RBGN", "REAL", "REDIA", "REVSTAT", "RIDE", "RILCE", "RLA", "ROFO", "RSF", "SADHANA", "SEN",  "SHILAP", "SIAM", "SJR", "TAPPI",
@@ -229,6 +230,7 @@ sanitize_title <- function(j, abbr_list=journal_abvs, change_allcaps_only = FALS
   return(j %>% gsub("-", " - ", ., fixed = TRUE))
 }
 regex_query <- "(\\d+)\\s+([\\w\\-\\s\\&]+)\\s+([\\d\\.]+)$"
+# Using the 2023 CSV and parsing the single-field into Rank, Title and IF
 JCR_IF_table <- read_csv("data/JCR2023.csv", col_names = c("description")) %>% 
   remove_empty(which = "rows") %>% # filter(description=="")
   distinct() %>%
@@ -242,13 +244,13 @@ JCR_IF_table <- read_csv("data/JCR2023.csv", col_names = c("description")) %>%
 
 # manually add IF data for journals not found in the database from https://jcr.clarivate.com/jcr/browse-journals
 my_IF_table <- tribble(~full_title, ~journal_IF, # ~Publisher,
-                       "Microbial Genomics", 3.8, #"Microbiology Society"
+                       #"Microbial Genomics", 3.8, #"Microbiology Society"
                        "Genes", 2.8, 
-                       "Scientific Reports", 4,
+                       #"Scientific Reports", 4,
                        "SpringerPlus", 1.130,
-                       "Frontiers in Chemistry", 3.8,
-                       "Frontiers in Plant Science", 4.1,
-                       "Frontiers in Genetics", 2.8
+                       # "Frontiers in Chemistry", 3.8,
+                       # "Frontiers in Plant Science", 4.1,
+                       # "Frontiers in Genetics", 2.8
                        )
 # Using the 2021 Excel file
 # IF_table <- read_excel("data/JCR2021.xlsx", sheet = "Table 1", skip = 2) %>% 
@@ -260,28 +262,6 @@ my_IF_table <- tribble(~full_title, ~journal_IF, # ~Publisher,
 #            full_title=to_title_case(gsub("&", "and", full_journal_title, fixed = TRUE), 
 #                                     abbreviations = journal_abvs, parsing_option=3)) %>% 
 #   bind_rows(my_IF_table)
-# Using the 2023 CSV and parsing the single-field into Rank, Title and IF
-regex_query <- "(\\d+)\\s+([\\w\\-\\s\\&]+)\\s+([\\d\\.]+)$"
-JCR_IF_table <- read_csv("data/JCR2023.csv", col_names = c("description")) %>% 
-  remove_empty(which = "rows") %>% # filter(description=="")
-  distinct() %>%
-  mutate(rank = str_extract(description, regex_query, 1),
-         full_journal_title = str_extract(description, regex_query, 2),
-         journal_IF = as.numeric(str_extract(description, regex_query, 3)),
-         # title = gsub("&", "and", full_journal_title, fixed = TRUE),
-         full_title=map_chr(full_journal_title, .f = sanitize_title)) %>% 
-  filter(!is.na(full_journal_title))
-
-# manually add IF data for journals not found in the database from https://jcr.clarivate.com/jcr/browse-journals
-my_IF_table <- tribble(~full_title, ~journal_IF, # ~Publisher,
-                       "Microbial Genomics", 3.8, #"Microbiology Society"
-                       "Genes", 2.8, 
-                       "Scientific Reports", 4,
-                       "SpringerPlus", 1.130,
-                       "Frontiers in Chemistry", 3.8,
-                       "Frontiers in Plant Science", 4.1,
-                       "Frontiers in Genetics", 2.8
-                       )
 
 ```
 
@@ -291,7 +271,8 @@ The SJR table was downloaded from the [Scimago Journal Ranking](https://www.scim
 SJR_table <- read_delim("data/scimagojr 2023.csv", delim = ";") %>% 
    clean_names(case="mixed", abbreviations = c("SJR", "ISSN", "ID")) %>% 
   mutate(full_title=gsub("Thalassas:.+", "Thalassas", Title),
-         full_title=map_chr(full_title, .f = sanitize_title)) %>% 
+         full_title=map_chr(full_title, .f = sanitize_title),
+         SJR = as.numeric(sub(",", ".", SJR))) %>% 
   select(Title, full_title, SJR, H_index, Categories, Publisher)
 
 ```
