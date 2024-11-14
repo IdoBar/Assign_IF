@@ -29,9 +29,9 @@ pak::pak(packs)
 pacman::p_load(char = basename(packs))
 
 # define common abbreviations (that won't be converted by snakecase)
-journal_abvs <- c( "ICES", "BMC","BMJ", "ACTA", "AAPG", "AAPS", "AATCC", "ACM", "AAS", "ACI", "AEU", "AERA", "AI", "AIAA", "AIBR", "AIDS", "AIMS", "ASTIN",
+journal_abvs <- c( "ICES", "BMC","BMJ", "ACTA", "ACS", "AAPG", "AAPS", "AATCC", "ACM", "AAS", "ACI", "AEU", "AERA", "AI", "AIAA", "AIBR", "AIDS", "AIMS", "ASTIN",
                   "AJAR", "AJIDD", "AJIL", "AKCE", "ALEA", "AMB", "AMA", "ALTEX", "ATW", "PDE", "ANZ", "AoB", "AORN", "APL", "APMIS", "ARDEA", "ARS", "ASAIO",
-                  "ASCE", "ASME", "ASHRAE", "AStA", "ATLA", "AUK", "BJS", "BJU", "BMB", "BMGN", "BMJ", "BRQ", "BSGF", "CBE", "COMPEL", "COPD", "CMC",
+                  "ASCE", "ASME", "ASHRAE", "AStA", "ATLA", "AUK", "BJS", "BJU", "BMB", "BMGN", "BMJ", "BRQ", "BSGF","CA", "CBE", "COMPEL", "COPD", "CMC",
                   "CUAJ", "CPT","CTS", "DARU","EFSA", "ENT","EPE", "ESAIM", "EURE", "GAIA", "GLQ", "HAHR", "HAU","ICGA", "ICHNOS", "ICON", "IEEE","IEICE", "IRAL","ISI", "ISJ","ITE", "ITEA",
                   "JAAPA", "JACC", "JAIDS", "JANAC",'JAMA', "JARO", "JARQ", "JASSS", "JAVMA", "JAVNOST", "JCMS", "JCPSP", "JCR", "JNCI", "JNP", "JOGNN", "JPAD", 
                   "JPC","JSLS","KGK","LIBRI","LHB", "LUTS", "LWT", "MAPAN", "MCN", "MMWR", "NAUNYN", "NJAS", "NODEA", "NWIG", "ORL", "OTJR", "PFG", "QJM", "PS",
@@ -211,9 +211,9 @@ The data table was read from the spreadsheet and cleaned with various functions 
 
 ```{r if-table, warning=FALSE, eval=FALSE}
 # define common abbreviations (that won't be converted by snakecase)
-journal_abvs <- c( "ICES", "BMC","BMJ", "ACTA", "AAPG", "AAPS", "AATCC", "ACM", "AAS", "ACI", "AEU", "AERA", "AI", "AIAA", "AIBR", "AIDS", "AIMS", "ASTIN",
+journal_abvs <- c( "ICES", "BMC","BMJ", "ACTA", "ACS", "AAPG", "AAPS", "AATCC", "ACM", "AAS", "ACI", "AEU", "AERA", "AI", "AIAA", "AIBR", "AIDS", "AIMS", "ASTIN",
                   "AJAR", "AJIDD", "AJIL", "AKCE", "ALEA", "AMB", "AMA", "ALTEX", "ATW", "PDE", "ANZ", "AoB", "AORN", "APL", "APMIS", "ARDEA", "ARS", "ASAIO",
-                  "ASCE", "ASME", "ASHRAE", "AStA", "ATLA", "AUK", "BJS", "BJU", "BMB", "BMGN", "BMJ", "BRQ", "BSGF", "CBE", "COMPEL", "COPD", "CMC",
+                  "ASCE", "ASME", "ASHRAE", "AStA", "ATLA", "AUK", "BJS", "BJU", "BMB", "BMGN", "BMJ", "BRQ", "BSGF","CA", "CBE", "COMPEL", "COPD", "CMC",
                   "CUAJ", "CPT","CTS", "DARU","EFSA", "ENT","EPE", "ESAIM", "EURE", "GAIA", "GLQ", "HAHR", "HAU","ICGA", "ICHNOS", "ICON", "IEEE","IEICE", "IRAL","ISI", "ISJ","ITE", "ITEA",
                   "JAAPA", "JACC", "JAIDS", "JANAC",'JAMA', "JARO", "JARQ", "JASSS", "JAVMA", "JAVNOST", "JCMS", "JCPSP", "JCR", "JNCI", "JNP", "JOGNN", "JPAD", 
                   "JPC","JSLS","KGK","LIBRI","LHB", "LUTS", "LWT", "MAPAN", "MCN", "MMWR", "NAUNYN", "NJAS", "NODEA", "NWIG", "ORL", "OTJR", "PFG", "QJM", "PS",
